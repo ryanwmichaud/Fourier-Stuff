@@ -19,7 +19,7 @@ def main(input):
     for i in range(data.shape[0]):
         data[i]=np.flip(data[i])
         for j in range(data.shape[1]):
-            data[i,j]=data[i,j]*255
+            data[i,j]=data[i,j]*10
     
  
     input = input.split('.')

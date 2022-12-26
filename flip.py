@@ -48,6 +48,7 @@ def main(input_file):
     if(shift != 0):
         new_array = np.ndarray(array.shape)
         if(shift<0):
+            print('neg')
             for i in range(shift,array.shape[0]):
                 new_array[i] = array[i+shift]
         else:

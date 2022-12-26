@@ -46,28 +46,80 @@ def spectral_color(l): # RGB <0,1> <- lambda l <400,700> [nm]
         b=0.7 -(     t)+(0.30*t*t)
     
     return [r*255, g*255, b*255]
-    
+
+def scale(row):
+    s = ((row - 0) / (1025-0))
+    s*=300
+    s+=400 
+    return s
 
 def main(input):
-    
-  
-    image_array = np.ndarray(shape=(500,500,3),dtype=np.uint8)
-    
+
+    """
     for i in range(image_array.shape[0]):
-        color = spectral_color(500)
+        color = spectral_color(i+400)
         for j in range(image_array.shape[1]):
 
             image_array[i,j]=color
-    print(image_array)
-
-    p = im.fromarray(image_array) 
+    
+    """
+    
   
+    
+    
+    sig, fs = librosa.core.load(input, sr=8000)
+    freqs = np.abs(librosa.core.spectrum.stft(sig))
+    image_array = np.ndarray(shape=(freqs.shape[0],freqs.shape[1],3),dtype=np.uint8)
+
+
+    """
+    for i in range(image_array.shape[0]):
+        row_color = spectral_color(scale(i))
+        for j in range(image_array.shape[1]):            
+            for k in range(3):
+                image_array[i,j,k]=row_color[k]
+    """
+
+    column_colors = np.ndarray(shape=(freqs.shape[0],3))
+
+    for i in range(image_array.shape[0]):
+        for j in range(image_array.shape[1]):
+            magnitude = freqs[i,j]
+            color_to_add = spectral_color(scale(i))
+
+            for k in range(3):
+                column_colors[i,k] += (magnitude*color_to_add[k])
+
+    for i in range(image_array.shape[0]):
+        for j in range(image_array.shape[1]):     
+            color = column_colors[j]       
+            for k in range(3):
+                image_array[i,j,k]=color[k]
+
+
+
+    """
+    for i in range(image_array.shape[0]):
+        row_color = spectral_color(scale(i))
+        for j in range(image_array.shape[1]):
+            magnitude = freqs[i,j]
+            
+            for k in range(3):
+                image_array[i,j,k]+= row_color[k]
+    """
+    
+    """
+    for i in range(image_array.shape[0]):
+        for j in range(image_array.shape[1]):
+            for k in range(3):
+                image_array[i,j,k] /= image_array.shape[0]
+    """
+    
+    p = im.fromarray(image_array) 
     p.save("color.png")
 
     """
-    sig, fs = librosa.core.load(input, sr=8000)
-    #stft! 
-    raw = np.abs(librosa.core.spectrum.stft(sig))
+    
    
    
    

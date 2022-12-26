@@ -26,9 +26,9 @@ def main(file):
         for j in range(img_array.shape[1]):
             if(len(img_array.shape) == 3):  #convert to 2d greyscale if needed
                 avg = (img_array[i,j,0]+img_array[i,j,1]+img_array[i,j,2])/3
-                audio_array[i,j] = (avg/255)
+                audio_array[i,j] = (avg/10)
             elif(len(img_array.shape) == 2):
-                audio_array[i,j] = img_array[i,j]/255  #scale down to audio range 0-255
+                audio_array[i,j] = img_array[i,j]/10  #scale down to audio range 0-255
             else: 
                 print("image must be 2 or 3 dimensional, not ",len(img_array.shape))
                 exit()
