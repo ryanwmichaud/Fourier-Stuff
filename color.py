@@ -1,13 +1,9 @@
 import librosa
-import soundfile
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import librosa.display
 from PIL import Image as im
 import sys
 
-def spectral_color(l): # RGB <0,1> <- lambda l <400,700> [nm]
+def spectral_color(l): 
     t = 0 
     r=0.0 
     g=0.0 
@@ -47,42 +43,19 @@ def spectral_color(l): # RGB <0,1> <- lambda l <400,700> [nm]
     
     return [r*255, g*255, b*255]
 
-def scale(row):
-    s = ((row - 0) / (1025-0))
-    s*=300
-    s+=400 
+def scale(row,max_row,min_row):
+    s = ((row) / (max_row-min_row)) #scale it to 0-1
+    s*=300 #scale to the visible light range. 300 wide.  
+    s+=400 #row 0 maps to 400
     return s
 
 def main(input):
 
-    """
-    for i in range(image_array.shape[0]):
-        color = spectral_color(i+400)
-        for j in range(image_array.shape[1]):
-
-            image_array[i,j]=color
-    
-    """
-    
-    
-
-
-    """
-    for i in range(image_array.shape[0]):
-        row_color = spectral_color(scale(i))
-        for j in range(image_array.shape[1]):            
-            for k in range(3):
-                image_array[i,j,k]=row_color[k]
-    """
-
     sig, fs = librosa.core.load(input, sr=8000)
     freqs = np.abs(librosa.core.spectrum.stft(sig))
     
-    
-    print(freqs.shape)
     num_freqs = freqs.shape[0] 
     num_times = freqs.shape[1]
-
 
     freqs = np.flip(freqs)
     for i in range(num_freqs):
@@ -95,7 +68,7 @@ def main(input):
     image_array2 = np.ndarray(shape=(num_freqs, num_times,3), dtype=np.uint8)
 
     for freq in range(num_freqs):
-        color_to_add = spectral_color(scale(freq))
+        color_to_add = spectral_color(scale(freq,num_freqs,0))
         for time in range(num_times):
             magnitude = freqs[freq,time] 
             
