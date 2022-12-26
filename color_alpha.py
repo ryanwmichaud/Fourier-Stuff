@@ -41,7 +41,7 @@ def spectral_color(l):
         t=(l-475.0)/(560.0-475.0)
         b=0.7 -(     t)+(0.30*t*t)
     
-    return [r*255, g*255, b*255]
+    return [r*255, g*255, b*255, 255]
 
 def scale(row,max_row,min_row):
     s = ((row) / (max_row-min_row)) #scale it to 0-1
@@ -63,42 +63,43 @@ def main(input):
         #for j in range(num_times):
         #   freqs[i,j] = 0.9
 
-    column_colors = np.ndarray(shape=(num_times,3))
+    column_colors = np.ndarray(shape=(num_times,4))
 
-    image_array2 = np.ndarray(shape=(num_freqs, num_times,3), dtype=np.uint8)
+    image_array2 = np.ndarray(shape=(num_freqs, num_times,4), dtype=np.uint8)
     for freq in range(num_freqs):
         color_to_add = spectral_color(scale(freq,num_freqs,0))
+        #print('color:',color_to_add)
+
         for time in range(num_times):
-            magnitude = freqs[freq,time] 
+            color_to_add[3] = freqs[freq,time] 
             
-            for k in range(3):   #need to scale it and keep rgb relatively same!!!
-                column_colors[time,k] += (magnitude*color_to_add[k])
-                image_array2[freq,time,k] = magnitude * color_to_add[k]
+            for k in range(4): #make alpha channel contribute how much of this color to add. instead of just avg alpha channel being final alpha
+                column_colors[time,k] += color_to_add[k]
+                image_array2[freq,time,k] = color_to_add[k]
+            
+    
+    for i in range(image_array2.shape[0]):
+        for j in range(image_array2.shape[1]): 
+            image_array2[i,j,3] = image_array2[i,j,3]*255
     
     #divide for avg
     for time in range(num_times):
-        for k in range(3):
+        for k in range(4):
             column_colors[time,k] /= num_freqs
-    
-
+            column_colors[time,k] *= 255
     
     #build and save image
     
-    image_array = np.ndarray(shape=(50, num_times,3),dtype=np.uint8)
+    image_array = np.ndarray(shape=(50, num_times,4),dtype=np.uint8)
 
     for i in range(image_array.shape[0]):
         for j in range(image_array.shape[1]):     
             color = column_colors[j]       
-            for k in range(3):
+            for k in range(4):
                 image_array[i,j,k]=color[k]
     
-    #print
-    """
-    for i in range(image_array.shape[0]):
-        for j in range(image_array.shape[1]): 
-            print(image_array2[i,j],end='')
-        print('\n')
-    """
+    
+ 
 
     p = im.fromarray(image_array) 
     input = input.split('.')[0]
