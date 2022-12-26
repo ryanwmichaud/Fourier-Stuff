@@ -64,12 +64,7 @@ def main(input):
     
     """
     
-  
     
-    
-    sig, fs = librosa.core.load(input, sr=8000)
-    freqs = np.abs(librosa.core.spectrum.stft(sig))
-    image_array = np.ndarray(shape=(freqs.shape[0],freqs.shape[1],3),dtype=np.uint8)
 
 
     """
@@ -80,21 +75,46 @@ def main(input):
                 image_array[i,j,k]=row_color[k]
     """
 
-    column_colors = np.ndarray(shape=(freqs.shape[0],3))
+    sig, fs = librosa.core.load(input, sr=8000)
+    freqs = np.abs(librosa.core.spectrum.stft(sig))
+    
+    print(freqs.shape)
+    num_freqs = freqs.shape[0] 
+    num_times = freqs.shape[1]
 
-    for i in range(image_array.shape[0]):
-        for j in range(image_array.shape[1]):
-            magnitude = freqs[i,j]
-            color_to_add = spectral_color(scale(i))
+
+    column_colors = np.ndarray(shape=(num_freqs,3))
+
+    
+
+    for freq in range(num_freqs):
+        for time in range(num_times):
+            magnitude = freqs[freq,time] 
+            color_to_add = spectral_color(scale(freq))
 
             for k in range(3):
-                column_colors[i,k] += (magnitude*color_to_add[k])
+                column_colors[time,k] += (magnitude*color_to_add[k])
+    
+    #divide for avg
+    for time in range(num_times):
+        for k in range(3):
+            column_colors[time,k] /= num_freqs
+    print(column_colors)
+
+    
+    #build and save image
+    
+    image_array = np.ndarray(shape=(20, num_times,3),dtype=np.uint8)
 
     for i in range(image_array.shape[0]):
         for j in range(image_array.shape[1]):     
             color = column_colors[j]       
             for k in range(3):
                 image_array[i,j,k]=color[k]
+    
+
+    p = im.fromarray(image_array) 
+    p.save("color.png")
 
 
 
@@ -115,8 +135,7 @@ def main(input):
                 image_array[i,j,k] /= image_array.shape[0]
     """
     
-    p = im.fromarray(image_array) 
-    p.save("color.png")
+  
 
     """
     
