@@ -7,33 +7,30 @@ import librosa.display
 from PIL import Image as im
 import sys
 
-def main(input, output):
+def main(input):
    
     sig, fs = librosa.core.load(input, sr=8000)
-    
     #stft! 
-    raw = np.abs(librosa.core.spectrum.stft(sig))
-    pretty = raw.copy
-    pretty = np.flip(pretty)
+    data = np.abs(librosa.core.spectrum.stft(sig))
    
-
-    for i in range(pretty.shape[0]):
-        pretty[i]=np.flip(pretty[i])
-        for j in range(pretty.shape[1]):
-            pretty[i,j]=pretty[i,j]*255
-
+   #flip and scale to be viewable
+    data = np.flip(data)
+    print(type(data))
+    for i in range(data.shape[0]):
+        data[i]=np.flip(data[i])
+        for j in range(data.shape[1]):
+            data[i,j]=data[i,j]*255
+    
+ 
     input = input.split('.')
     input = input[0]
     print(input)
 
-    p = im.fromarray(pretty[700:]) 
-    p = p.convert("L")
-    p.save(output+"_pretty.png")
 
-    data = im.fromarray(raw) 
+    data = im.fromarray(data) 
     data = data.convert("L")
-    data.save(output+"_raw.png")
+    data.save(input+"_img.png")
 
 if __name__ == "__main__" :
-    main(sys.argv[1],sys.argv[2])
+    main(sys.argv[1])
    
