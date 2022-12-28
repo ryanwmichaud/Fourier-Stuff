@@ -80,7 +80,7 @@ def main(input):
     
     for i in range(image_array2.shape[0]):
         for j in range(image_array2.shape[1]): 
-            image_array2[i,j,3] = image_array2[i,j,3]*255
+            image_array2[i,j,3] = image_array2[i,j,3]
     
     #divide for avg
     for time in range(num_times):
